@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Bandhan Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- Login Page -->
+  <div id="loginPage" class="flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-80">
+      <h2 class="text-xl font-bold mb-4 text-center">Admin Login</h2>
+      <input type="password" id="adminPassword" placeholder="Password" 
+        class="w-full p-2 border rounded mb-4"
+        onkeypress="if(event.key==='Enter'){adminLogin();}"/>
+      <button onclick="adminLogin()" 
+        class="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">Login</button>
+      <p id="loginMsg" class="text-red-600 text-sm mt-2 text-center"></p>
+    </div>
+  </div>
+
+  <!-- Admin Page -->
+  <div id="adminPage" class="hidden p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Admin Panel</h1>
+      <button onclick="goHome()" 
+        class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Home</button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white shadow rounded">
+        <thead>
+          <tr class="bg-indigo-600 text-white">
+            <th class="px-4 py-2">Name</th>
+            <th class="px-4 py-2">Gender</th>
+            <th class="px-4 py-2">Age</th>
+            <th class="px-4 py-2">Mobile</th>
+            <th class="px-4 py-2">Password</th>
+            <th class="px-4 py-2">Verified</th>
+            <th class="px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable" class="divide-y divide-gray-200">
+          <!-- User rows inject হবে -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-6 rounded shadow-md w-96">
+      <h2 class="text-lg font-bold mb-4">Edit Profile</h2>
+      <input id="editName" placeholder="Name" class="w-full p-2 border rounded mb-2">
+      <input id="editGender" placeholder="Gender" class="w-full p-2 border rounded mb-2">
+      <input id="editAge" placeholder="Age" class="w-full p-2 border rounded mb-2">
+      <input id="editMobile" placeholder="Mobile" class="w-full p-2 border rounded mb-2">
+      <input id="editPassword" placeholder="Password" class="w-full p-2 border rounded mb-2">
+      <div class="flex justify-end gap-2">
+        <button onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white rounded">Cancel</button>
+        <button onclick="saveEdit()" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
+      </div>
+      <p id="editMsg" class="text-green-600 text-sm mt-2 hidden">✅ Saved successfully!</p>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjyTMgP5mNf3ZMI-ZXKnzu0MP1Uz9omec",
+      authDomain: "bandhan-chat.firebaseapp.com",
+      projectId: "bandhan-chat",
+      storageBucket: "bandhan-chat.appspot.com",
+      messagingSenderId: "852469205550",
+      appId: "1:852469205550:web:a7e1c1723477c93169adbf"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const ADMIN_PASSWORD = "Bhabatosh94";
+    let editUserId = null;
+
+    function adminLogin(){
+      const pass = document.getElementById("adminPassword").value;
+      if(pass === ADMIN_PASSWORD){
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("adminPage").classList.remove("hidden");
+        loadUsers();
+      }else{
+        document.getElementById("loginMsg").innerText = "❌ Password ভুল!";
+      }
+    }
+
+    function goHome(){
+      window.location.href = "index.html";
+    }
+
+    function loadUsers(){
+      db.collection("users").orderBy("username").onSnapshot(snapshot=>{
+        const tbody = document.getElementById("usersTable");
+        tbody.innerHTML = "";
+        snapshot.forEach(doc=>{
+          const u = doc.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="px-4 py-2">${u.username}</td>
+            <td class="px-4 py-2">${u.gender||'-'}</td>
+            <td class="px-4 py-2">${u.age||'-'}</td>
+            <td class="px-4 py-2">${u.mobile}</td>
+            <td class="px-4 py-2">${u.password||'-'}</td>
+            <td class="px-4 py-2 text-center ${u.verified ? 'text-green-600' : 'text-red-600'}">
+              ${u.verified ? 'Yes' : 'No'}
+            </td>
+            <td class="px-4 py-2 flex gap-2">
+              <button onclick="toggleVerify('${doc.id}', ${u.verified})" 
+                class="bg-blue-600 text-white px-3 py-1 rounded">${u.verified ? 'Unverify' : 'Verify'}</button>
+              <button onclick="openEdit('${doc.id}', '${u.username}', '${u.gender}', '${u.age}', '${u.mobile}', '${u.password}')" 
+                class="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
+              <button onclick="deleteUser('${doc.id}')" 
+                class="bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function toggleVerify(id, verified){
+      db.collection("users").doc(id).update({ verified: !verified });
+    }
+
+    function deleteUser(id){
+      if(confirm("আপনি কি নিশ্চিত?")){
+        db.collection("users").doc(id).delete();
+      }
+    }
+
+    function openEdit(id,name,gender,age,mobile,password){
+      editUserId=id;
+      document.getElementById("editName").value=name;
+      document.getElementById("editGender").value=gender;
+      document.getElementById("editAge").value=age;
+      document.getElementById("editMobile").value=mobile;
+      document.getElementById("editPassword").value=password;
+      document.getElementById("editModal").classList.remove("hidden");
+    }
+
+    function closeModal(){
+      document.getElementById("editModal").classList.add("hidden");
+      document.getElementById("editMsg").classList.add("hidden");
+    }
+
+    function saveEdit(){
+      const name=document.getElementById("editName").value;
+      const gender=document.getElementById("editGender").value;
+      const age=document.getElementById("editAge").value;
+      const mobile=document.getElementById("editMobile").value;
+      const password=document.getElementById("editPassword").value;
+
+      db.collection("users").doc(editUserId).update({
+        username:name, gender, age, mobile, password
+      }).then(()=>{
+        document.getElementById("editMsg").classList.remove("hidden");
+        setTimeout(()=>{ closeModal(); },1000);
+      });
+    }
+  </script>
+</body>
+</html>

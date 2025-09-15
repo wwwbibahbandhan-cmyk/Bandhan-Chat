@@ -1,126 +1,278 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bandhan Messenger</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bandhan Messenger</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="h-screen flex bg-gray-100">
+<body class="bg-gray-100 font-sans">
 
-  <!-- Sidebar -->
-  <aside class="w-1/4 bg-white shadow flex flex-col">
-    <div class="p-4 border-b">
-      <h2 class="text-lg font-bold mb-2">New User</h2>
-      <input id="username" placeholder="নাম" class="w-full p-2 border rounded mb-2"/>
-      <input id="mobile" placeholder="মোবাইল" class="w-full p-2 border rounded mb-2"/>
-      <button onclick="createUser()" class="w-full bg-indigo-600 text-white p-2 rounded mb-1 hover:bg-indigo-700 transition">Save</button>
-      <p id="userMsg" class="text-green-600 text-sm mt-1"></p>
+<!-- Navbar -->
+<nav class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+  <h1 class="text-xl font-bold">🌸 Bandhan Messenger</h1>
+  <div class="space-x-3">
+    <button onclick="showPage('home')" class="px-3 py-1 bg-white text-indigo-600 rounded">Home</button>
+    <button onclick="showPage('about')" class="px-3 py-1 bg-white text-indigo-600 rounded">About Us</button>
+    <button onclick="showPage('contact')" class="px-3 py-1 bg-white text-indigo-600 rounded">Contact Us</button>
+    <button onclick="openProfileModal()" class="px-3 py-1 bg-green-500 text-white rounded">Create Profile</button>
+
+    <button onclick="openLoginModal()" id="loginBtn" class="px-3 py-1 bg-blue-500 text-white rounded">Login</button>
+    <button onclick="logout()" id="logoutBtn" class="hidden px-3 py-1 bg-red-500 text-white rounded">Logout</button>
+    <button onclick="window.location.href='admin.html'" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">Admin</button>
+  </div>
+</nav>
+
+<!-- Pages -->
+<div id="home" class="p-6 text-center space-y-6">
+  <h2 class="text-2xl font-bold">Welcome to Bandhan Messenger 💬</h2>
+  <p class="text-gray-600 mt-2">Create your profile and connect with verified users. Admin approval required.</p>
+  
+  <!-- Features Section -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+    <div class="bg-white p-4 rounded shadow hover:shadow-lg transition">
+      <h3 class="font-bold text-lg">Secure Chat</h3>
+      <p class="text-gray-600 mt-1">All messages are visible only to verified users.</p>
     </div>
-    <div id="userList" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
-  </aside>
+    <div class="bg-white p-4 rounded shadow hover:shadow-lg transition">
+      <h3 class="font-bold text-lg">Easy Registration</h3>
+      <p class="text-gray-600 mt-1">Sign up with basic details and wait for admin approval.</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow hover:shadow-lg transition">
+      <h3 class="font-bold text-lg">Connect Safely</h3>
+      <p class="text-gray-600 mt-1">Chat only with trusted and verified users in a safe environment.</p>
+    </div>
+  </div>
 
-  <!-- Chat Area -->
-  <main class="flex-1 flex flex-col">
-    <header id="chatHeader" class="p-4 bg-indigo-600 text-white font-bold shadow">
-      Select One User
-    </header>
-    <div id="messages" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
-    <div class="flex p-4 bg-gray-200">
-      <input id="messageInput" type="text" placeholder="মেসেজ লিখুন..." class="flex-1 p-2 rounded-l border"/>
+  <!-- Call to Action -->
+  <button onclick="openProfileModal()" class="mt-6 bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700 transition">
+    Create Your Profile Now
+  </button>
+</div>
+
+
+<div id="about" class="hidden p-6 space-y-6 max-w-4xl mx-auto">
+  <h2 class="text-3xl font-bold text-center">About Bandhan Messenger 🌸</h2>
+  <p class="text-gray-700 text-lg mt-4 text-center">
+    Bandhan Messenger is a secure and friendly platform for connecting with trusted users.
+    Our mission is to provide a safe environment where communication is simple, private, and enjoyable.
+  </p>
+
+  <!-- Features / Values -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+    <div class="bg-indigo-50 p-4 rounded shadow hover:shadow-lg transition">
+      <h3 class="font-bold text-lg mb-2">Safe & Secure</h3>
+      <p class="text-gray-600">Every user is verified by admin to ensure a safe chatting environment.</p>
+    </div>
+    <div class="bg-indigo-50 p-4 rounded shadow hover:shadow-lg transition">
+      <h3 class="font-bold text-lg mb-2">Simple & Easy</h3>
+      <p class="text-gray-600">Creating a profile and starting a conversation is simple and quick.</p>
+    </div>
+    <div class="bg-indigo-50 p-4 rounded shadow hover:shadow-lg transition">
+      <h3 class="font-bold text-lg mb-2">Community Focused</h3>
+      <p class="text-gray-600">We aim to connect people in a trusted and friendly environment.</p>
+    </div>
+  </div>
+
+  <!-- Call to Action -->
+  <div class="text-center mt-6">
+    <button onclick="openProfileModal()" class="bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700 transition">
+      Join Our Community
+    </button>
+  </div>
+</div>
+
+
+<div id="contact" class="hidden p-6 max-w-3xl mx-auto space-y-6 text-center">
+  <h2 class="text-3xl font-bold mb-4">Contact Us 📬</h2>
+  <p class="text-gray-700 text-lg">
+    Have questions or need help? Reach out to us anytime. We are here to assist you!
+  </p>
+
+  <div class="mt-6 space-y-4">
+    <div class="flex items-center justify-center gap-2 text-gray-700">
+      <span class="font-bold">Email:</span>
+      <a href="mailto:www.bibahbandhan@gmail.com" class="text-indigo-600 hover:underline">www.bibahbandhan@gmail.com</a>
+    </div>
+    <div class="flex items-center justify-center gap-2 text-gray-700">
+      <span class="font-bold">Phone:</span>
+      <a href="tel:+919064899089" class="text-indigo-600 hover:underline">+91 9064899089</a>
+    </div>
+  </div>
+
+  <!-- Optional Contact Form -->
+  <div class="mt-6 bg-indigo-50 p-4 rounded shadow max-w-md mx-auto">
+    <h3 class="font-bold text-xl mb-2">Send us a message:</h3>
+    <input type="text" placeholder="Your Name" class="w-full p-2 border rounded mb-2">
+    <input type="email" placeholder="Your Email" class="w-full p-2 border rounded mb-2">
+    <textarea placeholder="Your Message" class="w-full p-2 border rounded mb-2"></textarea>
+    <button class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">Send Message</button>
+  </div>
+</div>
+
+
+<!-- Messenger -->
+<div id="messenger" class="hidden flex-1 flex flex-col h-[calc(100vh-64px)]">
+<div class="flex h-full overflow-hidden">
+  <aside class="w-1/4 bg-white shadow p-2 overflow-y-auto">
+    <h2 class="font-bold mb-2">Users List</h2>
+    <div id="chatUserList" class="space-y-2"></div>
+  </aside>
+  <main class="flex-1 flex flex-col bg-gray-50">
+    <div id="chatHeader" class="bg-indigo-100 p-3 font-bold">Select a user to chat</div>
+    <div id="messagesBox" class="flex-1 p-3 overflow-y-auto space-y-2"></div>
+    <div class="flex p-3 bg-gray-200">
+      <input id="chatInput" type="text" placeholder="Type a message..." class="flex-1 p-2 rounded-l border"/>
       <button onclick="sendMessage()" class="bg-indigo-600 text-white px-4 rounded-r hover:bg-indigo-700 transition">Send</button>
     </div>
   </main>
+</div>
+</div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Profile Modal -->
+<div id="profileModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+<div class="bg-white w-96 p-6 rounded shadow space-y-3">
+<h2 class="text-lg font-bold">Create Profile</h2>
+<input id="regName" placeholder="Name" class="w-full p-2 border rounded" />
+<select id="regGender" class="w-full p-2 border rounded">
+  <option value="">Gender</option>
+  <option>Male</option>
+  <option>Female</option>
+  <option>Other</option>
+</select>
+<input id="regAge" type="number" placeholder="Age" class="w-full p-2 border rounded" />
+<input id="regMobile" placeholder="Mobile No" class="w-full p-2 border rounded" />
+<input id="regPass" type="password" placeholder="Create Password" class="w-full p-2 border rounded" />
+<button onclick="registerUser()" class="w-full bg-indigo-600 text-white py-2 rounded">Register</button>
+<button onclick="closeProfileModal()" class="w-full bg-gray-400 text-white py-2 rounded">Close</button>
+<p id="regMsg" class="text-sm mt-2"></p>
+</div>
+</div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBjyTMgP5mNf3ZMI-ZXKnzu0MP1Uz9omec",
-      authDomain: "bandhan-chat.firebaseapp.com",
-      projectId: "bandhan-chat",
-      storageBucket: "bandhan-chat.firebasestorage.app",
-      messagingSenderId: "852469205550",
-      appId: "1:852469205550:web:a7e1c1723477c93169adbf",
-      measurementId: "G-QLEYD6WGPY"
-    };
+<!-- Login Modal -->
+<div id="loginModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+<div class="bg-white w-80 p-6 rounded shadow space-y-3">
+<h2 class="text-lg font-bold">Login</h2>
+<input id="loginMobile" placeholder="Mobile No" class="w-full p-2 border rounded" />
+<input id="loginPass" type="password" placeholder="Password" class="w-full p-2 border rounded" />
+<button onclick="loginUser()" class="w-full bg-blue-600 text-white py-2 rounded">Login</button>
+<button onclick="closeLoginModal()" class="w-full bg-gray-400 text-white py-2 rounded">Close</button>
+<p id="loginMsg" class="text-sm mt-2"></p>
+</div>
+</div>
 
-    
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyBjyTMgP5mNf3ZMI-ZXKnzu0MP1Uz9omec",
+authDomain: "bandhan-chat.firebaseapp.com",
+projectId: "bandhan-chat",
+storageBucket: "bandhan-chat.appspot.com",
+messagingSenderId: "852469205550",
+appId: "1:852469205550:web:a7e1c1723477c93169adbf"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    let currentUser = null;
-    let activeChatUser = null;
+let currentUser = null;
+let activeChat = null;
 
-    function createUser() {
-      const username = document.getElementById("username").value.trim();
-      const mobile = document.getElementById("mobile").value.trim();
-      if(!username || !mobile){ alert("নাম ও মোবাইল দিন!"); return; }
-      db.collection("users").add({ username, mobile })
-        .then(docRef=>{
-          currentUser = { id: docRef.id, username };
-          document.getElementById("userMsg").innerText = "✅ ইউজার তৈরি সফল!";
-          loadUsers();
-        });
-    }
+function showPage(id){
+  ["home","about","contact","messenger"].forEach(p=>document.getElementById(p).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  if(id==="messenger") loadChatUsers();
+}
 
-    function loadUsers() {
-      db.collection("users").orderBy("username").onSnapshot(snapshot=>{
-        const list = document.getElementById("userList");
-        list.innerHTML="";
-        snapshot.forEach(doc=>{
-          const u = doc.data();
-          if(currentUser && doc.id === currentUser.id) return;
-          const div = document.createElement("div");
-          div.className = "flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer shadow-sm";
-          div.innerHTML = `<div class="w-10 h-10 bg-indigo-200 rounded-full flex items-center justify-center font-bold text-white">${u.username.charAt(0).toUpperCase()}</div>
-                           <div class="ml-2"><p class="font-semibold">${u.username}</p><p class="text-xs text-gray-500">${u.mobile}</p></div>`;
-          div.onclick = ()=> openChat(doc.id, u.username);
-          list.appendChild(div);
-        });
+function openProfileModal(){ document.getElementById("profileModal").classList.remove("hidden"); }
+function closeProfileModal(){ document.getElementById("profileModal").classList.add("hidden"); }
+function openLoginModal(){ document.getElementById("loginModal").classList.remove("hidden"); }
+function closeLoginModal(){ document.getElementById("loginModal").classList.add("hidden"); }
+
+async function registerUser(){
+  const name=document.getElementById("regName").value.trim();
+  const gender=document.getElementById("regGender").value;
+  const age=document.getElementById("regAge").value;
+  const mobile=document.getElementById("regMobile").value.trim();
+  const pass=document.getElementById("regPass").value;
+
+  if(!name||!gender||!age||!mobile||!pass){ document.getElementById("regMsg").innerText="সব ফিল্ড পূরণ করুন!"; return; }
+
+  await db.collection("users").doc(mobile).set({
+    username:name, gender, age, mobile, password:pass, verified:false
+  });
+  document.getElementById("regMsg").innerText="✅ Profile created (Admin approval needed)";
+}
+
+async function loginUser(){
+  const mobile=document.getElementById("loginMobile").value.trim();
+  const pass=document.getElementById("loginPass").value;
+  const doc = await db.collection("users").doc(mobile).get();
+  if(!doc.exists){ document.getElementById("loginMsg").innerText="❌ User not found"; return; }
+  const u = doc.data();
+  if(u.password!==pass){ document.getElementById("loginMsg").innerText="❌ Password wrong"; return; }
+  if(!u.verified){ document.getElementById("loginMsg").innerText="❌ Not approved by Admin"; return; }
+  currentUser = u;
+  document.getElementById("loginBtn").classList.add("hidden");
+  document.getElementById("logoutBtn").classList.remove("hidden");
+  closeLoginModal();
+  showPage("messenger");
+}
+
+function logout(){
+  currentUser=null;
+  document.getElementById("loginBtn").classList.remove("hidden");
+  document.getElementById("logoutBtn").classList.add("hidden");
+  alert("Logged out");
+}
+
+// Load verified users
+function loadChatUsers(){
+  if(!currentUser) return;
+  db.collection("users").where("verified","==",true).get().then(snap=>{
+    const list=document.getElementById("chatUserList"); list.innerHTML="";
+    snap.forEach(doc=>{
+      const u=doc.data();
+      if(u.mobile===currentUser.mobile) return;
+      const div=document.createElement("div");
+      div.className="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer";
+      div.innerText=u.username;
+      div.onclick=()=>openChat(u.mobile,u.username);
+      list.appendChild(div);
+    });
+  });
+}
+
+function openChat(mobile,name){ activeChat={id:mobile,username:name}; document.getElementById("chatHeader").innerText="Chat: "+name; loadMessages(); }
+
+function loadMessages(){
+  if(!activeChat||!currentUser) return;
+  const chatId=[currentUser.mobile,activeChat.id].sort().join("_");
+  db.collection("messages").doc(chatId).collection("msgs").orderBy("time","asc")
+    .onSnapshot(snap=>{
+      const box=document.getElementById("messagesBox"); box.innerHTML="";
+      snap.forEach(doc=>{
+        const d=doc.data();
+        const div=document.createElement("div");
+        div.className="p-2 rounded max-w-xs "+(d.sender===currentUser.username?"bg-indigo-100 ml-auto text-right":"bg-white mr-auto text-left shadow-sm");
+        div.innerText=d.sender+": "+d.text;
+        box.appendChild(div);
       });
-    }
+      box.scrollTop=box.scrollHeight;
+    });
+}
 
-    function openChat(userId, username){
-      activeChatUser = { id:userId, username };
-      document.getElementById("chatHeader").innerText = "চ্যাট: "+username;
-      loadMessages();
-    }
-
-    function loadMessages(){
-      if(!currentUser || !activeChatUser) return;
-      const chatId = [currentUser.id, activeChatUser.id].sort().join("_");
-      db.collection("messages").doc(chatId).collection("msgs")
-        .orderBy("time","asc")
-        .onSnapshot(snap=>{
-          const box = document.getElementById("messages");
-          box.innerHTML="";
-          snap.forEach(doc=>{
-            const d = doc.data();
-            const div = document.createElement("div");
-            div.className = "p-2 rounded max-w-xs " + (d.sender===currentUser.username ? "bg-indigo-100 ml-auto text-right" : "bg-white mr-auto text-left shadow-sm");
-            div.innerText = d.sender+": "+d.text;
-            box.appendChild(div);
-          });
-          box.scrollTop = box.scrollHeight;
-        });
-    }
-
-    function sendMessage(){
-      const text = document.getElementById("messageInput").value.trim();
-      if(!text || !currentUser || !activeChatUser){ alert("প্রথমে ইউজার তৈরি করুন ও মেসেজ লিখুন!"); return; }
-      const chatId = [currentUser.id, activeChatUser.id].sort().join("_");
-      db.collection("messages").doc(chatId).collection("msgs").add({
-        sender: currentUser.username,
-        text,
-        time: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      document.getElementById("messageInput").value="";
-    }
-
-    loadUsers();
-  </script>
+function sendMessage(){
+  const text=document.getElementById("chatInput").value.trim();
+  if(!text||!activeChat){ alert("Select a user first"); return; }
+  const chatId=[currentUser.mobile,activeChat.id].sort().join("_");
+  db.collection("messages").doc(chatId).collection("msgs").add({
+    sender: currentUser.username,
+    text,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById("chatInput").value="";
+}
+</script>
 </body>
 </html>
