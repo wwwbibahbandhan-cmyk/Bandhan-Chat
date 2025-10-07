@@ -3,23 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel - Bandhan Chat</title>
+  <title>Admin Panel - Hello Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<style>
+  /* Animated gradient text */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientBG 3s ease infinite;
+}
+
+</style>
 <body class="bg-gray-100 min-h-screen">
 
   <!-- Login Page -->
-  <div id="loginPage" class="flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded shadow-md w-80">
-      <h2 class="text-xl font-bold mb-4 text-center">Admin Login</h2>
-      <input type="password" id="adminPassword" placeholder="Password" 
-        class="w-full p-2 border rounded mb-4"
-        onkeypress="if(event.key==='Enter'){adminLogin();}"/>
-      <button onclick="adminLogin()" 
-        class="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">Login</button>
-      <p id="loginMsg" class="text-red-600 text-sm mt-2 text-center"></p>
-    </div>
+<div id="loginPage" class="flex items-center justify-center h-screen bg-gradient-to-br from-cyan-100 via-teal-50 to-indigo-100">
+  <div class="bg-white rounded-3xl shadow-2xl w-80 p-8 transform transition-transform duration-300 hover:-translate-y-2 hover:shadow-3xl">
+    
+    <!-- Modal Title -->
+    <h2 class="text-2xl font-extrabold mb-6 text-center text-gradient bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-teal-400 to-indigo-500 animate-gradient">Admin Login</h2>
+    
+    <!-- Password Input -->
+    <input type="password" id="adminPassword" placeholder="Password" 
+      class="w-full p-3 mb-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none shadow-inner" 
+      onkeypress="if(event.key==='Enter'){adminLogin();}"/>
+    
+    <!-- Login Button -->
+    <button onclick="adminLogin()" 
+      class="w-full py-3 mb-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transform transition-all duration-300">Login</button>
+    
+    <!-- Message -->
+    <p id="loginMsg" class="text-red-600 text-sm mt-2 text-center min-h-[1.25rem]"></p>
+
+    <!-- Optional Footer -->
+    <p class="text-xs text-slate-400 mt-4 text-center">Hello Messenger Secure access only</p>
   </div>
+</div>
+
 
   <!-- Admin Page -->
   <div id="adminPage" class="hidden p-4">
@@ -32,16 +58,16 @@
     <div class="overflow-x-auto">
       <table class="min-w-full bg-white shadow rounded">
         <thead>
-          <tr class="bg-indigo-600 text-white">
-            <th class="px-4 py-2">Name</th>
-            <th class="px-4 py-2">Gender</th>
-            <th class="px-4 py-2">Age</th>
-            <th class="px-4 py-2">Mobile</th>
-            <th class="px-4 py-2">Password</th>
-            <th class="px-4 py-2">Verified</th>
-            <th class="px-4 py-2">Actions</th>
-          </tr>
-        </thead>
+  <tr class="relative text-white">
+    <th class="px-4 py-2 bg-gradient-to-r from-cyan-500 via-teal-400 to-indigo-500 shadow-md transform transition-transform hover:-translate-y-1 hover:scale-105">Name</th>
+    <th class="px-4 py-2 bg-gradient-to-r from-cyan-500 via-teal-400 to-indigo-500 shadow-md transform transition-transform hover:-translate-y-1 hover:scale-105">Gender</th>
+    <th class="px-4 py-2 bg-gradient-to-r from-cyan-500 via-teal-400 to-indigo-500 shadow-md transform transition-transform hover:-translate-y-1 hover:scale-105">Age</th>
+    <th class="px-4 py-2 bg-gradient-to-r from-cyan-500 via-teal-400 to-indigo-500 shadow-md transform transition-transform hover:-translate-y-1 hover:scale-105">Mobile</th>
+    <th class="px-4 py-2 bg-gradient-to-r from-cyan-500 via-teal-400 to-indigo-500 shadow-md transform transition-transform hover:-translate-y-1 hover:scale-105">Password</th>
+    <th class="px-4 py-2 bg-gradient-to-r from-cyan-500 via-teal-400 to-indigo-500 shadow-md transform transition-transform hover:-translate-y-1 hover:scale-105">Verified</th>
+    <th class="px-4 py-2 bg-gradient-to-r from-cyan-500 via-teal-400 to-indigo-500 shadow-md transform transition-transform hover:-translate-y-1 hover:scale-105">Actions</th>
+  </tr>
+</thead>
         <tbody id="usersTable" class="divide-y divide-gray-200">
           <!-- User rows inject হবে -->
         </tbody>
@@ -50,21 +76,24 @@
   </div>
 
   <!-- Edit Modal -->
-  <div id="editModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white p-6 rounded shadow-md w-96">
-      <h2 class="text-lg font-bold mb-4">Edit Profile</h2>
-      <input id="editName" placeholder="Name" class="w-full p-2 border rounded mb-2">
-      <input id="editGender" placeholder="Gender" class="w-full p-2 border rounded mb-2">
-      <input id="editAge" placeholder="Age" class="w-full p-2 border rounded mb-2">
-      <input id="editMobile" placeholder="Mobile" class="w-full p-2 border rounded mb-2">
-      <input id="editPassword" placeholder="Password" class="w-full p-2 border rounded mb-2">
-      <div class="flex justify-end gap-2">
-        <button onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white rounded">Cancel</button>
-        <button onclick="saveEdit()" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
-      </div>
-      <p id="editMsg" class="text-green-600 text-sm mt-2 hidden">✅ Saved successfully!</p>
+<div id="editModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white p-6 rounded shadow-md w-96">
+    <h2 class="text-lg font-bold mb-4">Edit Profile</h2>
+
+    <input id="editName" placeholder="Name" class="w-full p-2 border rounded mb-2">
+    <input id="editGender" placeholder="Gender" class="w-full p-2 border rounded mb-2">
+    <input id="editAge" placeholder="Age" class="w-full p-2 border rounded mb-2">
+    <input id="editMobile" value="" readonly class="w-full p-2 border rounded mb-2 bg-gray-100">
+    <input id="editPassword" placeholder="Password" class="w-full p-2 border rounded mb-2">
+    <div class="flex justify-end gap-2">
+      <button onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white rounded">Cancel</button>
+      <button onclick="saveEdit()" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
     </div>
+
+    <p id="editMsg" class="text-green-600 text-sm mt-2 hidden">✅ Saved successfully!</p>
   </div>
+</div>
+
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -118,7 +147,7 @@
             </td>
             <td class="px-4 py-2 flex gap-2">
               <button onclick="toggleVerify('${doc.id}', ${u.verified})" 
-                class="bg-green-600 text-white px-3 py-1 rounded">${u.verified ? 'Unverify' : 'Verify'}</button>
+                class="bg-blue-600 text-white px-3 py-1 rounded">${u.verified ? 'Unverify' : 'Verify'}</button>
               <button onclick="openEdit('${doc.id}', '${u.username}', '${u.gender}', '${u.age}', '${u.mobile}', '${u.password}')" 
                 class="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
               <button onclick="deleteUser('${doc.id}')" 
@@ -155,21 +184,33 @@
       document.getElementById("editMsg").classList.add("hidden");
     }
 
-    function saveEdit(){
-      const name=document.getElementById("editName").value;
-      const gender=document.getElementById("editGender").value;
-      const age=document.getElementById("editAge").value;
-      const mobile=document.getElementById("editMobile").value;
-      const password=document.getElementById("editPassword").value;
+    async function saveEdit(){
+  const name = document.getElementById("editName").value;
+  const gender = document.getElementById("editGender").value;
+  const age = document.getElementById("editAge").value;
+  const mobile = document.getElementById("editMobile").value;
+  const password = document.getElementById("editPassword").value;
 
-      db.collection("users").doc(editUserId).update({
-        username:name, gender, age, mobile, password
-      }).then(()=>{
-        document.getElementById("editMsg").classList.remove("hidden");
-        setTimeout(()=>{ closeModal(); },1000);
-      });
-    }
+  // Check for duplicate mobile
+  const snap = await db.collection("users")
+                       .where("mobile", "==", mobile)
+                       .get();
+  
+  // If mobile exists and it's not the current edited user
+  if(!snap.empty && snap.docs[0].id !== editUserId){
+    alert("❌ এই মোবাইল নম্বর অন্য ইউজারের সাথে ব্যবহার হয়েছে!");
+    return;
+  }
+
+  // Update user
+  db.collection("users").doc(editUserId).update({
+    username: name, gender, age, mobile, password
+  }).then(()=>{
+    document.getElementById("editMsg").classList.remove("hidden");
+    setTimeout(()=>{ closeModal(); },1000);
+  });
+}
+
   </script>
 </body>
 </html>
-
